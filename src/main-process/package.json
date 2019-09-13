@@ -1,0 +1,17 @@
+{
+  "name": "nap",
+  "version": "1.0.0",
+  "description": "Note and project",
+  "main": "index.js",
+  "keywords": [],
+  "author": "梦欤",
+  "license": "MIT",
+  "config": {
+    "arch": "ia32",
+    "registry": "https://registry.npm.taobao.org"
+  },
+  "dependencies": {
+    "nedb": "^1.8.0"
+  },
+  "devDependencies": {}
+}

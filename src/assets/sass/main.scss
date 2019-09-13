@@ -1,0 +1,39 @@
+@import "intro";
+@import "utilities";
+
+body, html{
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, Microsoft YaHei UI;
+  font-weight: normal;
+}
+body{
+  overflow: hidden;
+  background-color: #fff;
+}
+
+/*App*/
+#app {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*Link style*/
+
+a {
+
+  color: #4698f7;
+  text-decoration: none;
+  transition: all ease-in-out .3s;
+
+  &:hover, &:active {
+    color: #2b67e7;
+    text-decoration: none;
+  }
+
+}
