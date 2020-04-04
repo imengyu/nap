@@ -1,13 +1,4 @@
 {
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/**/*.js",
-    "src/app.js",
-    "src/main-process",
-  ],
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
@@ -16,15 +7,29 @@
     "target": "es5",
     "moduleResolution": "node",
     "isolatedModules": true,
+    "strictFunctionTypes": false,
     "lib": [
       "dom",
       "es5",
+      "es6",
       "es2015.promise"
     ],
-    "types": [
-      "jquery"
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/vue/types",
+      "./node_modules/vue-router/types",
+      "./node_modules/@types/node",
+      "./node_modules/@types/**",
     ],
     "sourceMap": true,
     "pretty": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/*.js",
+    "src/main-process",
+  ]
 }

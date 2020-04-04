@@ -49,14 +49,6 @@
         };
         throw Error("本应用不能在浏览器中运行! App must run in Electron");
       }
-      const appVesrsion = '1.0.0';
-      const appBuildDate = '191006';
-      const Datastore = require("nedb");
-      var appPath = process.cwd();
-      var dbPath = appPath + "/data/data.db";
-      var db = new Datastore({ filename: dbPath });
-      var main = null;
-      var data = null;
     </script>
   </body>
 </html>

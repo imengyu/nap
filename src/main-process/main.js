@@ -1,8 +1,7 @@
-const electron = require('electron')
-const path = require("path")
-const url = require('url')
-
-const { app,BrowserWindow,globalShortcut,dialog } = require('electron')
+const electron = require("electron");
+const { app,BrowserWindow,globalShortcut,dialog } = require("electron");
+const path = require("path");
+const url = require('url');
  
 let mainWindow = null
 
@@ -13,7 +12,16 @@ const ipc = electron.ipcMain;
 //托盘对象
 var appTray = null;
 var appQuit = false
+var appDebugPath = '';
 
+function readArgv() {
+  for (let i = 0; i < process.argv.length; i++) {
+    if(process.argv[i] == '--debug-path' && i < process.argv.length - 1) {
+      appDebugPath = process.argv[i + 1];
+      break;
+    }
+  }
+}
 function createWindow () {
 
   mainWindow = new BrowserWindow({
@@ -30,11 +38,11 @@ function createWindow () {
     },
   })
   //mainWindow.setMenu(null)
-  mainWindow.loadURL(url.format({
+  mainWindow.loadURL(appDebugPath == '' ? url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  }) : appDebugPath)
   mainWindow.webContents.openDevTools();
  
   mainWindow.on('closed', function () {
@@ -62,8 +70,7 @@ function createWindow () {
     {
       label: '退出',
       click: function () { 
-        mainWindow.show(); 
-        mainWindow.webContents.send('main-window-act', 'show-exit-dialog');
+        appQuit = true; app.quit();
       }
     }
   ];
@@ -81,7 +88,8 @@ function createWindow () {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 
-app.on('ready', function(){
+app.on('ready', function() {
+  readArgv();
   createWindow();
 })
 app.on('window-all-closed', function () {
@@ -106,9 +114,8 @@ app.on('activate', function () {
 //
 
 ipc.on('main-open-file-dialog-image', function (event, arg) {
-  var properties = ['openFile'];
   dialog.showOpenDialog(mainWindow, {
-    properties: properties,
+    properties: ['openFile'],
     title: '选择图片文件',
     filters: [
       { name: '图像文件', extensions: ['bmp', 'jpg', 'png'] },
@@ -135,6 +142,6 @@ ipc.on('main-act-window-control', function (event, arg) {
       }
       break;
     }
-    case 'openProcessManager':if (mainWindow) ; break;
+    case 'openProcessManager': break;
   }
 });

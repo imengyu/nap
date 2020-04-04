@@ -1,5 +1,7 @@
 @import "intro";
 @import "utilities";
+@import "small-widgets";
+@import "root";
 
 body, html{
   width: 100%;
@@ -27,13 +29,21 @@ body{
 
 a {
 
-  color: #4698f7;
+  color: $color-primary;
   text-decoration: none;
   transition: all ease-in-out .3s;
 
   &:hover, &:active {
-    color: #2b67e7;
+    color: $color-highlight;
     text-decoration: none;
   }
 
+}
+
+.bg-primary {
+  background-color: $color-primary;
+}
+
+.small-text {
+  font-size: 12px;
 }

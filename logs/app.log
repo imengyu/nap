@@ -1,0 +1,50 @@
+[2020-03-26T14:33:37.188] [INFO] app - Logger started
+[2020-03-26T14:33:37.208] [INFO] app - Current app cwd is E:/Programming/WinProjects/nap
+[2020-03-26T14:33:37.209] [INFO] app - App version is V 2.0.1 (2020/1/28)
+[2020-03-26T14:33:37.209] [INFO] app - App base path is E:/Programming/WinProjects/nap
+[2020-03-26T14:33:37.209] [INFO] app - App db path is E:/Programming/WinProjects/nap/data/data.db
+[2020-03-26T14:34:01.887] [INFO] app - Logger started
+[2020-03-26T14:34:01.907] [INFO] app - Current app cwd is E:/Programming/WinProjects/nap
+[2020-03-26T14:34:01.908] [INFO] app - App version is V 2.0.1 (2020/1/28)
+[2020-03-26T14:34:01.908] [INFO] app - App base path is E:/Programming/WinProjects/nap
+[2020-03-26T14:34:01.908] [INFO] app - App db path is E:/Programming/WinProjects/nap/data/data.db
+[2020-03-26T14:40:54.124] [INFO] app - Logger started
+[2020-03-26T14:40:54.151] [INFO] app - Current app cwd is E:/Programming/WinProjects/nap
+[2020-03-26T14:40:54.151] [INFO] app - App version is V 2.0.1 (2020/1/28)
+[2020-03-26T14:40:54.152] [INFO] app - App base path is E:/Programming/WinProjects/nap
+[2020-03-26T14:40:54.152] [INFO] app - App db path is E:/Programming/WinProjects/nap/data/data.db
+[2020-03-26T14:44:05.380] [INFO] app - Load data notes
+[2020-03-26T14:46:43.822] [INFO] app - Logger started
+[2020-03-26T14:46:43.846] [INFO] app - Current app cwd is E:/Programming/WinProjects/nap
+[2020-03-26T14:46:43.848] [INFO] app - App version is V 2.0.1 (2020/1/28)
+[2020-03-26T14:46:43.848] [INFO] app - App base path is E:/Programming/WinProjects/nap
+[2020-03-26T14:46:43.848] [INFO] app - App db path is E:/Programming/WinProjects/nap/data/data.db
+[2020-03-26T14:46:43.925] [INFO] app - Load data notes
+[2020-03-26T14:46:44.082] [ERROR] app - Load notes data error :  TypeError: Cannot read property 'find' of undefined
+    at eval (webpack-internal:///./src/service/DataStorageService.ts:58:22)
+    at new Promise (<anonymous>)
+    at DataStorageService.loadData (webpack-internal:///./src/service/DataStorageService.ts:56:16)
+    at VueComponent.Index.loadDatas (webpack-internal:///./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/view/Index.vue?vue&type=script&lang=ts&:51:77)
+    at VueComponent.Index.mounted (webpack-internal:///./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/view/Index.vue?vue&type=script&lang=ts&:44:14)
+    at invokeWithErrorHandling (webpack-internal:///./node_modules/vue/dist/vue.esm.js:1862:57)
+    at callHook (webpack-internal:///./node_modules/vue/dist/vue.esm.js:4222:7)
+    at Object.insert (webpack-internal:///./node_modules/vue/dist/vue.esm.js:3145:7)
+    at invokeInsertHook (webpack-internal:///./node_modules/vue/dist/vue.esm.js:6347:28)
+    at Vue.patch [as __patch__] (webpack-internal:///./node_modules/vue/dist/vue.esm.js:6566:5)
+[2020-03-27T11:32:47.491] [INFO] app - Logger started
+[2020-03-27T11:32:47.506] [INFO] app - Current app cwd is E:/Programming/WinProjects/nap
+[2020-03-27T11:32:47.507] [INFO] app - App version is V 2.0.1 (2020/1/28)
+[2020-03-27T11:32:47.507] [INFO] app - App base path is E:/Programming/WinProjects/nap
+[2020-03-27T11:32:47.507] [INFO] app - App db path is E:/Programming/WinProjects/nap/data/data.db
+[2020-03-27T11:32:47.568] [INFO] app - Load data notes
+[2020-03-27T11:32:47.644] [ERROR] app - Load notes data error :  TypeError: Cannot read property 'find' of undefined
+    at eval (webpack-internal:///./src/service/DataStorageService.ts:58:22)
+    at new Promise (<anonymous>)
+    at DataStorageService.loadData (webpack-internal:///./src/service/DataStorageService.ts:56:16)
+    at VueComponent.Index.loadDatas (webpack-internal:///./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/view/Index.vue?vue&type=script&lang=ts&:51:77)
+    at VueComponent.Index.mounted (webpack-internal:///./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/view/Index.vue?vue&type=script&lang=ts&:44:14)
+    at invokeWithErrorHandling (webpack-internal:///./node_modules/vue/dist/vue.esm.js:1862:57)
+    at callHook (webpack-internal:///./node_modules/vue/dist/vue.esm.js:4222:7)
+    at Object.insert (webpack-internal:///./node_modules/vue/dist/vue.esm.js:3145:7)
+    at invokeInsertHook (webpack-internal:///./node_modules/vue/dist/vue.esm.js:6347:28)
+    at Vue.patch [as __patch__] (webpack-internal:///./node_modules/vue/dist/vue.esm.js:6566:5)

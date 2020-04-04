@@ -2,7 +2,7 @@
   "name": "nap",
   "version": "1.0.0",
   "description": "Note and project",
-  "main": "index.js",
+  "main": "main.js",
   "keywords": [],
   "author": "梦欤",
   "license": "MIT",
