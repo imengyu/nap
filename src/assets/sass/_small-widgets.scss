@@ -1,5 +1,9 @@
 @import './root';
 
+*[hidden="hidden"] {
+  display: none!important;
+}
+
 .icon-button{
   background: transparent;
   border: none;
@@ -26,9 +30,32 @@
   align-items: center;
   background: #fff;
   border-top: 1px solid #efefef;
+  
+  &.canclose {
+    padding-top: 10px;
+    padding-bottom: 15px;
+    
+    background-color: #fbfafa;
+  }
+
+  .close {
+    position: absolute;
+    right: 8px;
+    top: 5px;
+  }
 
   &.around {
     justify-content: space-around;
+  }
+  &.bar {
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .bar {
+    display: block;
+    margin: 0 20px;
+    margin-top: 5px;
   }
 
   li {
@@ -47,6 +74,11 @@
     &:hover, &:active {
       color: $color-highlight;
     }
+
+    &[disabled] {
+      color: rgba(77, 86, 90, 0.6);
+      cursor: default;
+    }
   }
 
   &[disabled] {
@@ -64,5 +96,75 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.tool-btn {
+
+  white-space: nowrap;
+  font-size: 0px;
+  display: inline-block;
+
+  button {
+    color: #323233;
+    background-color: #fff;
+    border: 1px solid #ebedf0;
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 44px;
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+
+    vertical-align: middle;
+    height: 45px;
+
+    i {
+      vertical-align: middle;
+      line-height: 29px;
+    }
+
+    &:hover, &:active, &.active {
+      background-color: #e5e5e5;
+      border: 1px solid #d8dadb;
+    }
+
+    &:first-child:not(.no-left-radius) {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    &:not(:first-child), .no-border-left {
+      border-left: none;
+    }
+
+    &:last-child:not(.no-right-radius) {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+  }
+
+  &.small {
+
+    margin-bottom: 10px;
+
+    button {
+      padding: 1px 10px;
+      font-size: 15px;
+     
+      height: 30px;
+
+      i {
+        vertical-align: middle;
+
+        font-size: 18px;
+        margin-right: 4px;
+      }
+    }
+  }
 }
 
