@@ -565,6 +565,7 @@ export default class Index extends Vue {
 
 <style lang="scss">
 @import '../assets/sass/root';
+@import '../assets/sass/scroll';
 
 .note {
   background: #f5f5f5;
@@ -606,6 +607,16 @@ export default class Index extends Vue {
 
   background: #f5f5f5;
   padding: 15px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 120px;
+  bottom: 0;
+
+  overflow: hidden;
+  overflow-y: scroll;
+
+  @include pc-fix-scrollbar-white();
 
   .center-text {
     text-align: center;

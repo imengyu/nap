@@ -1,8 +1,11 @@
 @import './root';
+@import './scroll';
 
 *[hidden="hidden"] {
   display: none!important;
 }
+
+
 
 .icon-button{
   background: transparent;
@@ -38,6 +41,12 @@
     background-color: #fbfafa;
   }
 
+  .tool-bar-title {
+    padding: 6px 0;
+    text-align: center;
+    font-size: 17px;
+    font-weight: bold;
+  }
   .close {
     position: absolute;
     right: 8px;
@@ -128,7 +137,12 @@
       line-height: 29px;
     }
 
-    &:hover, &:active, &.active {
+    &:hover, &:active {
+      background-color: #e5e5e5;
+      border: 1px solid #d8dadb;
+    }
+    &.active {
+      color: $color-highlight;
       background-color: #e5e5e5;
       border: 1px solid #d8dadb;
     }
@@ -158,6 +172,12 @@
      
       height: 30px;
 
+      &.active {
+        background-color: #e5e5e5;
+        border: 1px solid #d8dadb;
+        color: #323233;
+      }
+
       i {
         vertical-align: middle;
 
@@ -165,6 +185,79 @@
         margin-right: 4px;
       }
     }
+  }
+}
+.color-boxs {
+  list-style: none;
+  display: flex;
+  padding: 5px;
+  margin: 0;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  position: relative;
+
+  li {
+    list-style: none;
+    margin: 0;
+    display: inline-block;
+    width: 10%;
+    height: 10vw;
+    border-width: 2px;
+    border-style: none;
+    padding: 3px;
+
+    > div {
+      position: relative;
+      height: 100%;
+      text-align: center;
+      line-height: calc(10vw - 6px);
+      transition: all ease-in-out 0.2s;
+
+      &:active {
+        opacity: 0.8;
+        transform: scale(0.9);
+        
+      }
+    }
+
+    margin-left: 4px;
+    margin-top: 2px;
+
+    &.active {
+      border-style: solid;
+      opacity: 0.8;
+      transform: scale(1.11);
+
+      > div {
+        line-height: calc(10vw - 10px);
+      }
+    }
+    &:hover {
+
+      > div {
+        opacity: 0.8;
+        transform: scale(1.11);
+      }
+    }
+  }
+}
+.no-select {
+  user-select: none;
+}
+
+.format_color {
+  display: inline-block;
+  height: 5px;
+  position: absolute;
+  bottom: 9px;
+  left: 10px;
+  right: 10px;
+
+  &.color_border {
+    border: 1px solid black;
   }
 }
 

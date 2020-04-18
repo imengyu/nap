@@ -18,3 +18,6 @@ interface Date {
    */
   format(formatStr: String);
 }
+interface String {
+  contains(finf: String);
+}

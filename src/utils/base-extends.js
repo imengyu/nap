@@ -25,6 +25,9 @@ Date.prototype.format = function (formatStr) {
   str = str.replace(/ss/, pad(this.getSeconds(), 2));
   return str;
 }
+String.prototype.contains = function (finf) {
+  return this.indexOf(finf) >= 0;
+}
 
 /**
  * 数组删除
