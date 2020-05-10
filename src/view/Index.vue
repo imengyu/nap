@@ -38,9 +38,9 @@
             <mu-list-item @click="topMenuShow=false;onAddNoteClick()" button>
               <mu-list-item-title>新便签</mu-list-item-title>
             </mu-list-item>
-            <mu-list-item @click="topMenuShow=false;onAddProjectClick()" button>
+            <!--<mu-list-item @click="topMenuShow=false;onAddProjectClick()" button>
               <mu-list-item-title>新待办</mu-list-item-title>
-            </mu-list-item>
+            </mu-list-item>-->
             <mu-list-item @click="topMenuShow=false;onMgrFolderClick()" button>
               <mu-list-item-title>管理收藏夹</mu-list-item-title>
             </mu-list-item>
@@ -72,21 +72,22 @@
           <h5>置顶</h5>
         </li>
         <note-item v-for="note in noteCurrentShowToped" :key="note.uid" :note="note" :currentListSortMode="currentListSortMode"
-          @click="onNoteClick(note)" @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
-          @noteCheckChanged="onNoteCheckChanged">
+          @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
+          @mousedown.native="onNoteMouseDown(note)" @mouseup.native="onNoteMouseUp(note)">
           <template slot="right">
 
           </template>
         </note-item>
 
       </ul>
-      <ul class="note-list-inn" v-for="(dateGroup, i) in noteCurrentShowDateGrouped" :key="i">
+      <ul class="note-list-inn" v-for="(dateGroup, i) in noteCurrentShowDateGrouped" :key="i" v-show="dateGroup.notTopMostCount() > 0">
         <li class="month">
           <h5>{{ dateGroup.getDateString() }}</h5>
         </li>
         <note-item v-for="note in dateGroup.notes" :key="note.uid" :note="note" :currentListSortMode="currentListSortMode"
-          @click="onNoteClick(note)" @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
-          @noteCheckChanged="onNoteCheckChanged" :hidden="note.topMost" />
+          @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
+          @mousedown.native="onNoteMouseDown(note)" @mouseup.native="onNoteMouseUp(note)"
+          :hidden="note.topMost" />
         
       </ul>
       <div v-if="noteCurrentShow && noteCurrentShow.length > 10" class="center-text">
@@ -99,8 +100,8 @@
           <h5>置顶</h5>
         </li>
         <note-item v-for="note in noteCurrentShowToped" :key="note.uid" :note="note" :currentListSortMode="currentListSortMode"
-          @click="onNoteClick(note)" @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
-          @noteCheckChanged="onNoteCheckChanged">
+          @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
+          @mousedown.native="onNoteMouseDown(note)" @mouseup.native="onNoteMouseUp(note)">
           <template slot="right">
 
           </template>
@@ -109,8 +110,8 @@
       </ul>
       <ul class="note-list-inn">
         <note-item v-for="note in noteCurrentShow" :key="note.uid" :note="note" :currentListSortMode="currentListSortMode"
-          @click="onNoteClick(note)" @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
-          @noteCheckChanged="onNoteCheckChanged"
+          @touchstart="onNoteTouchstart(note)" @touchend="onNoteTouchend(note)"
+          @mousedown.native="onNoteMouseDown(note)" @mouseup.native="onNoteMouseUp(note)"
           :hidden="note.topMost" />
 
       </ul>
@@ -165,12 +166,13 @@
             <span class="ml-2 text-secondary">{{ category.childCount }}</span>
           </template>
           <template #right-icon >
-            <mu-button v-show="!category.isAll" icon small color="primary" @click="onEditFolderClick(category.uid)">
+            <mu-button v-show="!currentIsChooseFolder && !category.isAll" icon small color="primary" @click="onEditFolderClick(category.uid)">
               <mu-icon value="edit"></mu-icon>
             </mu-button>
-            <mu-button v-show="!category.isAll" icon small color="secondary" @click="onDeleteFolderClick(category.uid)">
+            <mu-button v-show="!currentIsChooseFolder && !category.isAll" icon small color="secondary" @click="onDeleteFolderClick(category.uid)">
               <mu-icon value="close"></mu-icon>
             </mu-button>
+            <van-checkbox v-show="currentIsChooseFolder" v-model="category.checked" @click="chooseFolderFinished"></van-checkbox>
           </template>
         </van-cell>
       </van-list>
@@ -199,7 +201,7 @@
       </div>
       <ul class="nav-left">
         <li @click="leftSide=false;onAddNoteClick()">新便签</li>
-        <li @click="leftSide=false;onAddProjectClick()">新待办</li>
+        <!--<li @click="leftSide=false;onAddProjectClick()">新待办</li>-->
         <li @click="leftSide=false;onMgrFolderClick()">管理收藏夹</li>
         <li @click="onAboutClick();leftSide=false;">关于</li>
         <li @click="onSettingsClick">设置</li>
@@ -284,7 +286,7 @@ export default class Index extends Vue {
   currentListSortMode = 'createDate';
   currentListMode = 'list';
   currentCategory = null;
-
+  currentIsChooseFolder = false;
 
   searchValue = "";
 
@@ -393,8 +395,19 @@ export default class Index extends Vue {
     })
   }
   onNoteClick(note : Note) {
-    if(!this.noteItemChooseMode)
-      this.goEditNote(note.uid);
+    if(!this.noteItemChooseMode) this.goEditNote(note.uid);
+    else{ 
+      note.checked = !note.checked;
+      this.onNoteCheckChanged();
+    }
+  }
+  onNoteMouseDown(note : Note) {
+    clearInterval(this.noteItemChooseModeTimer);
+    this.noteItemChooseModeTimer = setTimeout(() => this.onNoteLongClick(note), 700); 
+  }
+  onNoteMouseUp(note : Note) {
+    clearInterval(this.noteItemChooseModeTimer);
+    this.onNoteClick(note);
   }
   onNoteLongClick(note : Note) {
     if(!this.noteItemChooseMode) { 
@@ -412,8 +425,10 @@ export default class Index extends Vue {
   }
   onNoteTouchend(note : Note) {
     clearInterval(this.noteItemChooseModeTimer);
+    this.onNoteClick(note);
   }
   onNoteCheckChanged() {
+
     this.noteCheckedCount = 0;
     this.noteCheckedAndTopCount = 0;
     this.noteCurrentShow.forEach(element => {
@@ -467,7 +482,8 @@ export default class Index extends Vue {
     }).catch(() => {});
   }
   onNoteCheckedMoveToFolder() {
-    
+    this.currentIsChooseFolder = true;
+    this.editorFolders = true;
   }
   onNoteCheckedToPrivate() {
     Dialog.confirm({
@@ -481,6 +497,25 @@ export default class Index extends Vue {
 
   //** 添加更新按钮事件
 
+  chooseFolderFinished() {
+    this.currentIsChooseFolder = false;
+    this.editorFolders = false;
+
+    for (let index = 0; index < this.noteCategories.length; index++) {
+      if(this.noteCategories[index].checked) {
+        this.noteCategories[index].checked = false;
+        this.noteCurrentShow.forEach(element => {
+          if(element.checked) {
+            this.noteService.changeNoteParentCategory(element.uid, this.noteCategories[index].uid, false);
+          }
+        });
+        this.noteService.emitNotesUpdate();
+        this.noteService.emitCategoriesUpdate();
+        Toast.success('移动成功');
+        break;
+      }
+    }
+  }
   onAddNoteClick() {
     var note = this.noteService.addNote();
     this.goEditNote(note.uid);
@@ -541,8 +576,8 @@ export default class Index extends Vue {
     this.currentListSortMode = this.settingsData.listSortMode;
   }
   onSwitchListMode() {
-    if(this.currentListMode == 'list') this.currentListMode = 'grid';
-    else this.currentListMode = 'list';
+    if(this.currentListMode == 'list') this.settingsService.setSetting('listSortMode', 'grid');
+    else this.settingsService.setSetting('listSortMode', 'list');
   }
 
   //** 其他按钮事件
@@ -726,7 +761,7 @@ export default class Index extends Vue {
         padding: 15px 20px;
         transition: transform ease-in-out 0.4s;
 
-        &:hover {
+        &:hover:not(.month) {
           transform: scale(0.857);
         }
 

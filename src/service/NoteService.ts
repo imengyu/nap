@@ -107,6 +107,14 @@ export class NoteService extends EventEmitter implements Saveable {
       }
     }
   }
+  changeNoteParentCategory(uid : string, newCategoryUid : string, notify = true) {
+    let note = this.findNote(uid);
+    note.parentUid = newCategoryUid;
+    if(notify) {
+      this.emit('update-notes');
+      this.emit('update-categories');
+    }
+  }
 
   findCategory(uid : string) {
     for (let i = 0; i < this.noteCategories.length; i++) {

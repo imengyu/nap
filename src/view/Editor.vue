@@ -1,6 +1,6 @@
 <template>
   <div class="no-select">
-    <mu-appbar style="width: 100%;" z-depth="0">
+    <mu-appbar :style="'width: 100%;height:'+headerHeight+'px;'" z-depth="0">
       <mu-button @click="onBackClick" icon slot="left">
         <mu-icon value="keyboard_backspace"></mu-icon>
       </mu-button>
@@ -27,6 +27,9 @@
       <van-loading size="24px" vertical>加载中...</van-loading>
     </div>
     <div v-show="currentNote" class="w-100 full-height position-relative">
+      <moveable-tools ref="moveableTools" :targetEle="currentMoveableElement"
+         @delete="onCurrentEleDelete" @menu="onCurrentEleShowMenu" :headerHeight="headerHeight"
+         :sizeOption="currentSelectEleSizeOption" :scrollToTop="editorScrollToTop" />
       <div v-if="editMode&&currentNote.content==''&&editorLostFocus" @click="editor.focus()" class="editor-placeholder">
         在这里写一些内容吧
       </div>
@@ -53,9 +56,9 @@
 
         <li @click="showFontMenu=true"><mu-icon value="format_size"></mu-icon><span>样式</span>
         </li>
-        <li><mu-icon value="image"></mu-icon><span>图片</span>
+        <li @click="onAddImage"><mu-icon value="image"></mu-icon><span>图片</span>
         </li>
-        <li><mu-icon value="check_box"></mu-icon><span>目标</span>
+        <li @click="onToggleCheck"><mu-icon value="check_box"></mu-icon><span>目标</span>
         </li>
         <li><mu-icon value="color_lens"></mu-icon><span>皮肤</span>
         </li>
@@ -175,7 +178,12 @@
 
         <!--属性菜单-->
         <div v-show="showFontMenuCurrentPage=='attribute'" class="bar tool-btn">
-
+          <mu-select label="大小格式" v-model="currentSelectEleSizeOption" full-width @change="onCurrentSelectEleSizeOptionChange">
+            <mu-option label="自动占满" value="full-size"></mu-option>
+            <mu-option label="原始大小" value="auto-size"></mu-option>
+            <mu-option label="手动大小" value="custom-size"></mu-option>
+            <mu-option label="自由调整" value="custom"></mu-option>
+          </mu-select>
         </div>
         <div class="bar tool-btn">
 
@@ -222,25 +230,39 @@ import {
   Vue,
   Watch
 } from "vue-property-decorator";
-import { Dialog } from "vant";
+import electron from "electron";
+import fs from "fs";
+import { Dialog, Toast } from "vant";
 import $ from "jquery";
 import { Note } from "../model/Note";
 import { NoteService, getNoteService } from "../service/NoteService";
 import { KeyboardEvent, Event } from "electron";
 import CommonUtils from "../utils/CommonUtils";
+import { SettingsService, getSettingsService } from "../service/SettingsService";
+import mineType from "mime-types";
+import MoveableEle from "../components/MoveableEle.vue";
 
 export type EditorFormatType = 'header'|'clear'|'bold'|'italic'|'underlined'|
   'strikethrough'|'ol'|'ul'|'align'|'fontsize'|'font'|'subscript'|'superscript';
 
-@Component
+const ipc = electron.ipcRenderer;
+
+@Component({
+  components: {
+    'moveable-tools': MoveableEle
+  }
+})
 export default class Editor extends Vue {
   name = "Editor";
 
   editMode = false;
   noteService : NoteService = null;
+  settingsService : SettingsService = null;
   currentNote : Note = null;
   editor : HTMLDivElement = null;
 
+  headerHeight = 59;
+  editorScrollToTop = 0;
   showFontMenu = false;
   showFontMenuCurrentPage = 'font';
   showColorMenu = false;
@@ -334,7 +356,11 @@ export default class Editor extends Vue {
 
   mounted() {
     this.noteService = getNoteService();
+    this.settingsService = getSettingsService();
     this.loading = true;
+    this.initIPC();
+    this.loadSettings();
+
     setTimeout(() => {
       this.initEditor();
       this.load();
@@ -364,6 +390,23 @@ export default class Editor extends Vue {
     this.noteService.save();
   }
 
+  // Settings
+
+  insertImageBase64 = true;
+
+  loadSettings() {
+    this.insertImageBase64 = this.settingsService.getSettingBoolean("insertImageBase64");
+  }
+
+  // ipc
+
+  initIPC() {
+    ipc.on('selected-image', (event, args, files) => {
+      if(args == 'main-editor')
+        this.onSelectedImage(files);
+    });
+  }
+
   // Editor
 
   getEditorContent() {
@@ -390,9 +433,30 @@ export default class Editor extends Vue {
     this.editor = <HTMLDivElement>document.getElementById('editor');
     document.execCommand('styleWithCSS', false, 'true');
     document.addEventListener('selectionchange', this.onEditorSelectionChanged);
+    this.editor.addEventListener('click', this.onEditoClick)
+    this.editor.addEventListener('scroll', this.onEditoScroll)
+    this.currentMoveable = <MoveableEle>this.$refs.moveableTools;
   }
   uninitEditor() {
+    this.editor.removeEventListener('click', this.onEditoClick)
+    this.editor.removeEventListener('scroll', this.onEditoScroll)
     document.removeEventListener('selectionchange', this.onEditorSelectionChanged);
+  }
+  editorAddImage(imgPath : string) {
+    if(this.insertImageBase64) {
+      let imageData = fs.readFileSync(imgPath);
+      if (!imageData) {
+        Toast('载入图片：' + imgPath + ' 失败！');
+        return;
+      };
+      let bufferData = Buffer.from(imageData).toString("base64");
+      let base64 = "data:" + mineType.lookup(imgPath) + ";base64," + bufferData;
+      document.execCommand('insertImage', false, base64);
+
+    }else document.execCommand('insertImage', false, imgPath);
+  }
+  onEditoScroll() {
+    this.editorScrollToTop = this.editor.scrollTop;
   }
 
 
@@ -417,7 +481,13 @@ export default class Editor extends Vue {
   selectTextFontSize = '';
   selectTextFontName = '';
 
+  selectIsImage = false;
+
   currentSelect : Selection;
+  currentMoveable : MoveableEle;
+  currentMoveableElement : HTMLElement = null;
+
+  currentSelectEleSizeOption : string = 'custom';
 
   loadCurrentSelectStyle() {
     var selectParentNode = <HTMLElement>this.currentSelect.anchorNode.parentNode;
@@ -461,11 +531,59 @@ export default class Editor extends Vue {
       || $selectParentNode.parent().is('li') && $selectParentNode.parent().parent().is('ol'));
     this.selectIsUl = ($selectParentNode.parent().is('li') && $selectParentNode.parent().parent().is('ul')
       || $selectParentNode.is('li') && $selectParentNode.parent().is('ul'));
+
+    
+  }
+  loadCurrentSelectMoveableEle(e : HTMLElement) {
+    let $e = $(e);
+
+    this.currentMoveableElement = null;
+    this.selectIsImage = ($e.parent().is('img') || $e.is('img'));
+    if(this.selectIsImage) {
+      if($e.is('img'))
+        this.currentMoveableElement = $e.get(0);
+      else if($e.parent().is('img')) 
+        this.currentMoveableElement = $e.parent().get(0);
+    }
+    if(this.currentMoveableElement!=null) {
+      var $selectParentNode = $(this.currentMoveableElement.parentNode);
+      this.currentSelectEleSizeOption = this.currentMoveableElement.getAttribute('data-ele-size-option');
+      
+      this.selectTextAlignIsJustify = $selectParentNode.css('text-align') == 'justify';
+      this.selectTextAlignIsCenter = $selectParentNode.css('text-align') == 'center';
+      this.selectTextAlignIsLeft = $selectParentNode.css('text-align') == 'left';
+      this.selectTextAlignIsRight = $selectParentNode.css('text-align') == 'right';
+    }
   }
 
+  onCurrentEleDelete() {
+    Dialog.confirm({
+      title: '您是否要删除这个元素?',
+      confirmButtonColor: '#f44336',
+      confirmButtonText: '删除',
+    }).then(() => {
+      this.currentMoveableElement.parentNode.removeChild(this.currentMoveableElement);
+    }).catch(() => {});
+  }
+  onCurrentEleShowMenu() {
+    this.showFontMenu = true;
+    this.showFontMenuCurrentPage = 'attribute';
+  }
+  onCurrentSelectEleSizeOptionChange(value) {
+    if(this.currentMoveableElement != null) {
+      this.currentSelectEleSizeOption = value;
+      this.currentMoveableElement.setAttribute('data-ele-size-option', value);
+    }
+  }
+
+  onEditoClick(ev : MouseEvent) {
+    if(this.editMode) this.loadCurrentSelectMoveableEle(<HTMLElement>ev.target);
+  }
   onEditorSelectionChanged(ev : UIEvent) {
     this.currentSelect = window.getSelection();
-    if(this.editMode) this.loadCurrentSelectStyle();
+    if(this.editMode){
+      this.loadCurrentSelectStyle();
+    }
   }
   onEditorFormatColor(color : string) {
     if(this.editMode) {
@@ -528,15 +646,20 @@ export default class Editor extends Vue {
           break;
         }
         case 'align': {
-          switch(entend) {
-            case 'justify': 
-              document.execCommand('justifyFull', false, this.selectTextAlignIsJustify ? 'false' : 'true'); break;
-            case 'center': 
-              document.execCommand('justifyCenter', false, this.selectTextAlignIsCenter ? 'false' : 'true'); break;
-            case 'left': 
-              document.execCommand('justifyLeft', false, this.selectTextAlignIsLeft ? 'false' : 'true'); break;
-            case 'right': 
-              document.execCommand('justifyRight', false, this.selectTextAlignIsRight ? 'false' : 'true'); break;
+          if(this.selectIsImage) {
+            let parent = <HTMLElement>this.currentMoveableElement.parentNode;
+            parent.style.textAlign = entend;
+          }else {
+            switch(entend) {
+              case 'justify': 
+                document.execCommand('justifyFull', false, this.selectTextAlignIsJustify ? 'false' : 'true'); break;
+              case 'center': 
+                document.execCommand('justifyCenter', false, this.selectTextAlignIsCenter ? 'false' : 'true'); break;
+              case 'left': 
+                document.execCommand('justifyLeft', false, this.selectTextAlignIsLeft ? 'false' : 'true'); break;
+              case 'right': 
+                document.execCommand('justifyRight', false, this.selectTextAlignIsRight ? 'false' : 'true'); break;
+            }
           }
           break;
         }
@@ -549,8 +672,7 @@ export default class Editor extends Vue {
     }
   }
 
-
-  // Butn Events
+  // Button Events
  
   onEditTitle() {
     this.editTitle = true;
@@ -604,6 +726,16 @@ export default class Editor extends Vue {
   onEditClick() {
     this.editMode = true;
   }
+  onAddImage() {
+    ipc.send('main-open-file-dialog-image', 'main-editor');
+  }
+  onSelectedImage(images : Array<string>) {
+    images.forEach(element => this.editorAddImage(element));
+  }
+  onToggleCheck() {
+
+  }
+
 }
 </script>
 
@@ -653,6 +785,19 @@ export default class Editor extends Vue {
   }
   ol {
     list-style-type: decimal;
+  }
+}
+.attr-item {
+  width: 100%;
+  position: absolute;
+
+  label {
+    display: inline-block;
+    width: 36%;
+  }
+  .ctl {
+    display: inline-block;
+    width: 64%;
   }
 }
 </style>

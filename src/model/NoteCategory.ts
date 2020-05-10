@@ -8,6 +8,14 @@ export class NoteDateGroup {
   month : number;
   notes : Array<Note> = [];
 
+  notTopMostCount() {
+    let count = 0;
+    for (let index = 0; index < this.notes.length; index++) {
+      if(!this.notes[index].topMost)
+        count++;
+    }
+    return count;
+  }
   getDateString() {
     return this.year == new Date().getFullYear() ? (this.month  + '月') : (this.year + '年' + this.month  + '月');
   }
@@ -17,6 +25,7 @@ export class NoteCategory implements Saveable {
   uid : string;
   createDate : Date = new Date();
   name : string = "";
+  checked = false;
 
   constructor(createDate?: Date, name?: string) {
     this.createDate = createDate;

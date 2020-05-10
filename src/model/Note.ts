@@ -34,9 +34,14 @@ export class Note implements Saveable {
   get contentExtract() : string {
     if(CommonUtils.isNullOrEmpty(this.content))
       return "";
-    if(this.content.length > 60) 
-      return this.content.substr(0, 60);
-    return this.content;
+    else {
+      var dd = this.content.replace(/<[^>]+>/g,"");//截取html标签
+      var dds =  dd.replace(/&nbsp;/ig,"");//截取空格等特殊标签
+
+      if(dds.length > 60) 
+        return dds.substr(0, 60) + '...';
+      else return dds;
+    }
   }
   get title() {
     if(!CommonUtils.isNullOrEmpty(this.titleSetted)) 
