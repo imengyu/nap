@@ -34,7 +34,7 @@
         在这里写一些内容吧
       </div>
       <div 
-        @blur="editorLostFocus=true"
+        @blur="editorLostFocus=true;save()"
         @focus="editorLostFocus=false"
         @select="onEditorSelectionChanged"
         :readonly="editMode" class="editor" 
@@ -297,6 +297,7 @@ export default class Editor extends Vue {
   loading = true;
   editTitle = false;
   editTitleValue = '';
+  editInitialContent = '';
 
   fontSizes = [
     { text: '最大', value: 7 },
@@ -381,13 +382,16 @@ export default class Editor extends Vue {
       }).catch(() => this.$router.push('/'));
       return;
     }
-
+    this.editInitialContent = this.currentNote.content;
     this.setEditorContent(this.currentNote.content);
     this.loading = false;
   }
-  save() {
+  save(realSave = false) {
     this.currentNote.content = this.getEditorContent();
+    this.currentNote.titleFirst = this.getEditorText().substring(0, 32);
     this.noteService.save();
+    if(realSave) //保存初始状态
+      this.editInitialContent = this.currentNote.content;
   }
 
   // Settings
@@ -409,6 +413,9 @@ export default class Editor extends Vue {
 
   // Editor
 
+  getEditorText() {
+    return this.editor.innerText;
+  }
   getEditorContent() {
     return this.editor.innerHTML;
   }
@@ -444,16 +451,16 @@ export default class Editor extends Vue {
   }
   editorAddImage(imgPath : string) {
     if(this.insertImageBase64) {
+      //转图片为Base64
       let imageData = fs.readFileSync(imgPath);
       if (!imageData) {
         Toast('载入图片：' + imgPath + ' 失败！');
         return;
       };
       let bufferData = Buffer.from(imageData).toString("base64");
-      let base64 = "data:" + mineType.lookup(imgPath) + ";base64," + bufferData;
-      document.execCommand('insertImage', false, base64);
-
-    }else document.execCommand('insertImage', false, imgPath);
+      imgPath = "data:" + mineType.lookup(imgPath) + ";base64," + bufferData;
+    }
+    document.execCommand('insertHTML', false, `<img src="${imgPath}" style="width:100%;height:auto" />`);
   }
   onEditoScroll() {
     this.editorScrollToTop = this.editor.scrollTop;
@@ -593,7 +600,7 @@ export default class Editor extends Vue {
     }
   }
   onEditorFormat(type : EditorFormatType, entend : any) {
-    if(this.editMode) {
+    if(this.editMode && this.currentSelect) {
       var selectParentNode = $(this.currentSelect.anchorNode.parentNode);
       switch(type) {
         case 'header': {
@@ -699,7 +706,7 @@ export default class Editor extends Vue {
   }
   onSaveClick() {
     this.editMode = false;
-    this.save();
+    this.save(true);
   }
   onNotSaveClick() {
     Dialog.confirm({
@@ -710,7 +717,11 @@ export default class Editor extends Vue {
       cancelButtonText: '取消',
     }).then(() => {
       this.editMode = false;
-      this.load();
+
+      //重置编辑器状态到初始状态
+      this.currentNote.content = this.editInitialContent;
+      this.save();
+      this.setEditorContent(this.currentNote.content);
     }).catch(() => {});
   }
   onEmptyClick() {
@@ -733,12 +744,11 @@ export default class Editor extends Vue {
     images.forEach(element => this.editorAddImage(element));
   }
   onToggleCheck() {
-
+    
   }
 
 }
 </script>
-
 
 <style lang="scss">
 @import '../assets/sass/scroll';
@@ -798,6 +808,12 @@ export default class Editor extends Vue {
   .ctl {
     display: inline-block;
     width: 64%;
+  }
+}
+.note {
+  .van-dropdown-menu__bar {
+    background: none;
+    box-shadow: none;
   }
 }
 </style>

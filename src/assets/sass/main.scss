@@ -47,3 +47,20 @@ a {
 .small-text {
   font-size: 12px;
 }
+
+.mu-popover {
+  border-radius: 15px;
+  box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.08);
+
+  .mu-item {
+    padding: 0 26px;
+  }
+}
+.note-search {
+  input {
+    text-align: left;
+    &::-webkit-input-placeholder {
+      color: #919191;
+    }
+  }
+}

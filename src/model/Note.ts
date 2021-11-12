@@ -8,6 +8,7 @@ export class Note implements Saveable {
   createDate : Date = new Date();
   lastUpdateDate : Date = new Date();
   titleSetted : string = '';
+  titleFirst : string = '';
   content : string = '';
 
   checked = false;
@@ -24,13 +25,14 @@ export class Note implements Saveable {
     var o = JSON.parse(json);
     this.createDate = new Date(o.createDate);
     this.lastUpdateDate = new Date(o.lastUpdateDate);
-    this.titleSetted = o.titleSetted;
+    this.titleSetted = o.titleSetted || '';
+    this.titleFirst = o.titleFirst || '';
     this.topMost = o.topMost;
     this.uid = o.uid;
     this.parentUid = o.parentUid;
     this.content = o.content;
   }
-  
+
   get contentExtract() : string {
     if(CommonUtils.isNullOrEmpty(this.content))
       return "";
@@ -46,17 +48,8 @@ export class Note implements Saveable {
   get title() {
     if(!CommonUtils.isNullOrEmpty(this.titleSetted)) 
       return this.titleSetted;
-    if(!CommonUtils.isNullOrEmpty(this.content)) {
-      var break1Index = this.content.indexOf('<br');
-      var break2Index = this.content.indexOf('\n');
-      if(break1Index > 0) return this.content.substr(0, break1Index);
-      else if(break2Index > 0) return this.content.substr(0, break2Index);
-      else {
-        if(this.content.length > 32) 
-          return this.content.substr(0, 30);
-        return this.content;
-      }
-    }
+    if(!CommonUtils.isNullOrEmpty(this.titleFirst)) 
+      return this.titleFirst;
     return "[未命名便签]";
   }
 

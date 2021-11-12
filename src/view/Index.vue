@@ -59,7 +59,7 @@
     <!--搜索区域-->
     <van-search
       v-model="searchValue"
-      placeholder="搜索便签和日记"
+      placeholder="搜索你的便签"
       input-align="center"
       class="note-search"
     />
@@ -196,7 +196,7 @@
     >
       <div class="nav-left-head">
         <img src="../assets/images/logo128.png" />
-        <h1>Note and projects</h1>
+        <h1>简单记便签</h1>
         <span>BETA</span>
       </div>
       <ul class="nav-left">
@@ -576,8 +576,10 @@ export default class Index extends Vue {
     this.currentListSortMode = this.settingsData.listSortMode;
   }
   onSwitchListMode() {
-    if(this.currentListMode == 'list') this.settingsService.setSetting('listSortMode', 'grid');
-    else this.settingsService.setSetting('listSortMode', 'list');
+    if(this.currentListMode == 'list') this.currentListMode = 'grid';
+    else this.currentListMode = 'list';
+    
+    this.settingsService.setSetting('listSortMode', this.currentListMode);
   }
 
   //** 其他按钮事件
@@ -759,11 +761,8 @@ export default class Index extends Vue {
         border: 1px solid #eee;
         width: calc(50% - 5px);
         padding: 15px 20px;
-        transition: transform ease-in-out 0.4s;
-
-        &:hover:not(.month) {
-          transform: scale(0.857);
-        }
+        margin-bottom: 10px;
+        transition: transform ease-in-out 0.2s;
 
         &.month {
           display: block;
